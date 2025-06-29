@@ -75,7 +75,7 @@ bookRouter.get(
   }
 );
 
-// Update book -
+// Update book
 bookRouter.put(
   "/:bookId",
   async (req: Request, res: Response, next: NextFunction): Promise<any> => {

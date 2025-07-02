@@ -1,18 +1,24 @@
-import cors from "cors";
-import express, { Application, Request, Response } from "express";
-import { bookRouter } from "./app/controllers/book.controllers";
+// api/app.ts
 
-const app: Application = express();
+import { VercelRequest, VercelResponse } from "@vercel/node";
+import express from "express";
+import mongoose from "mongoose";
+import { bookRouter } from "../src/app/controllers/book.controllers";
 
-// middleware
+const app = express();
 app.use(express.json());
-app.use(cors());
-
-// routes
 app.use("/api/books", bookRouter);
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Welcome to Library Management APP");
-});
+let isConnected = false;
+async function connectToDB() {
+  if (isConnected) return;
+  await mongoose.connect(
+    "mongodb+srv://Library:OcZ9SZJHVwofI5uE@cluster0.bytzc92.mongodb.net/LM-app?retryWrites=true&w=majority&appName=Cluster0"
+  );
+  isConnected = true;
+}
 
-export default app;
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  await connectToDB();
+  return app(req, res);
+}

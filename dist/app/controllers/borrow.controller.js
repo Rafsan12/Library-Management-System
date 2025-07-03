@@ -62,3 +62,41 @@ exports.borrowBook.post("/", (req, res, next) => __awaiter(void 0, void 0, void 
         next(error);
     }
 }));
+exports.borrowBook.get("/", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const summary = yield borrow_model_1.Borrow.aggregate([
+            {
+                $group: {
+                    _id: "$book",
+                    totalQuantity: { $sum: "$quantity" },
+                },
+            },
+            {
+                $lookup: {
+                    from: "books",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "bookDetails",
+                },
+            },
+            { $unwind: "$bookDetails" },
+            {
+                $project: {
+                    book: {
+                        title: "$bookDetails.title",
+                        isbn: "$bookDetails.isbn",
+                    },
+                    totalQuantity: 1,
+                },
+            },
+        ]);
+        res.json({
+            success: true,
+            message: "Borrowed books summary retrieved successfully",
+            data: summary,
+        });
+    }
+    catch (err) {
+        next(err);
+    }
+}));

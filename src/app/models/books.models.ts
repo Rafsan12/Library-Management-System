@@ -32,4 +32,13 @@ const bookSchema = new Schema<IBook>(
   }
 );
 
+bookSchema.methods.updateAvailability = function () {
+  this.available = this.copies > 0;
+};
+
+bookSchema.pre("save", function (next) {
+  this.updateAvailability();
+  next();
+});
+
 export const Book = model<IBook>("Book", bookSchema);

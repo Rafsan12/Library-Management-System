@@ -1,5 +1,8 @@
-import { model, Schema } from "mongoose";
-const bookSchema = new Schema({
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Book = void 0;
+const mongoose_1 = require("mongoose");
+const bookSchema = new mongoose_1.Schema({
     title: { type: String, required: true },
     author: { type: String, required: true },
     genre: {
@@ -26,4 +29,11 @@ const bookSchema = new Schema({
     versionKey: false,
     timestamps: true,
 });
-export const Book = model("Book", bookSchema);
+bookSchema.methods.updateAvailability = function () {
+    this.available = this.copies > 0;
+};
+bookSchema.pre("save", function (next) {
+    this.updateAvailability();
+    next();
+});
+exports.Book = (0, mongoose_1.model)("Book", bookSchema);
